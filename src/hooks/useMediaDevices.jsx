@@ -8,7 +8,7 @@ export default function useMediaDevices() {
   const [isVideoActive, setIsVideoActive] = useState(false);
   const [isAudioActive, setIsAudioActive] = useState(false);
 
-  // 🔹 Refresh device list
+  // 🔹 Refresh available devices
   const refreshDevices = async () => {
     try {
       const allDevices = await listDevices();
@@ -24,53 +24,55 @@ export default function useMediaDevices() {
     }
   };
 
-  // 🔹 Handle device changes (e.g., plug/unplug)
+  // 🔹 Request permissions sequentially (camera → mic)
+  const requestPermissionsSequentially = async () => {
+    try {
+      // Ask for camera access first
+      const videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+      console.log("Camera permission granted");
+
+      // Ask for microphone access next
+      const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      console.log("Microphone permission granted");
+
+      // Merge both streams
+      const combined = new MediaStream([
+        ...videoStream.getTracks(),
+        ...audioStream.getTracks(),
+      ]);
+
+      setStream(combined);
+      setIsVideoActive(true);
+      setIsAudioActive(true);
+
+      await refreshDevices();
+    } catch (err) {
+      console.warn("Permission denied or failed:", err);
+    }
+  };
+
   useEffect(() => {
+    requestPermissionsSequentially();
     navigator.mediaDevices.addEventListener("devicechange", refreshDevices);
-    return () => navigator.mediaDevices.removeEventListener("devicechange", refreshDevices);
+    return () => {
+      navigator.mediaDevices.removeEventListener("devicechange", refreshDevices);
+    };
   }, []);
 
-  // 🔹 Request permissions separately
-  const requestCameraAccess = async () => {
-    try {
-      const camStream = await navigator.mediaDevices.getUserMedia({ video: true });
-      setStream(camStream);
-      setIsVideoActive(true);
-      await refreshDevices();
-    } catch (err) {
-      console.warn("Camera access denied:", err);
-    }
-  };
-
-  const requestMicAccess = async () => {
-    try {
-      const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      setStream(micStream);
-      setIsAudioActive(true);
-      await refreshDevices();
-    } catch (err) {
-      console.warn("Microphone access denied:", err);
-    }
-  };
-
-  // 🔹 Select device and restart stream if needed
+  // 🔹 Device selection: restart stream if changed
   const selectDevice = async (type, id) => {
     setSelected((prev) => ({ ...prev, [type]: id }));
-
-    if (type === "camera" && id) {
-      const newStream = await getMediaStream(id, selected.mic);
+    if (type === "camera" || type === "mic") {
+      const newStream = await getMediaStream(
+        type === "camera" ? id : selected.camera,
+        type === "mic" ? id : selected.mic
+      );
       setStream(newStream);
       setIsVideoActive(true);
-    }
-
-    if (type === "mic" && id) {
-      const newStream = await getMediaStream(selected.camera, id);
-      setStream(newStream);
       setIsAudioActive(true);
     }
   };
 
-  // 🔹 Start combined call
   const startCall = async () => {
     try {
       const newStream = await getMediaStream(selected.camera, selected.mic);
@@ -83,25 +85,49 @@ export default function useMediaDevices() {
     }
   };
 
-  // 🔹 Stop video completely
+  // 🔹 Stop camera fully
   const stopVideo = () => {
-    if (stream) {
-      stream.getVideoTracks().forEach((track) => track.stop());
-      stream.getTracks().forEach((t) => t.stop());
-      setStream(null);
-      setIsVideoActive(false);
-      setSelected((prev) => ({ ...prev, camera: "" }));
-    }
-  };
+  if (stream) {
+    // Stop and remove all video tracks
+    stream.getVideoTracks().forEach(track => {
+      track.stop();
+      stream.removeTrack(track);
+    });
 
-  // 🔹 Stop audio completely
-  const stopAudio = () => {
-    if (stream) {
-      stream.getAudioTracks().forEach((track) => track.stop());
-      setIsAudioActive(false);
-      setSelected((prev) => ({ ...prev, mic: "" }));
+    // If no audio tracks remain, clear the entire stream
+    const remainingTracks = stream.getTracks();
+    if (remainingTracks.length === 0) {
+      setStream(null);
+    } else {
+      setStream(new MediaStream(remainingTracks));
     }
-  };
+  }
+
+  // Mark video as inactive
+  setIsVideoActive(false);
+
+  // Also clear the video element manually (extra safety)
+  const videos = document.querySelectorAll("video");
+  videos.forEach(v => {
+    v.srcObject = null;
+  });
+  setIsVideoActive(false);
+};
+
+  // 🔹 Stop microphone fully
+  const stopAudio = () => {
+  if (stream) {
+    stream.getAudioTracks().forEach(track => {
+      track.stop();
+      stream.removeTrack(track);
+    });
+    setStream(prev => {
+      const newStream = new MediaStream(prev?.getVideoTracks() || []);
+      return newStream.getTracks().length ? newStream : null;
+    });
+  }
+  setIsAudioActive(false);
+};
 
   return {
     devices,
@@ -110,8 +136,6 @@ export default function useMediaDevices() {
     stream,
     isVideoActive,
     isAudioActive,
-    requestCameraAccess,
-    requestMicAccess,
     startCall,
     stopVideo,
     stopAudio,

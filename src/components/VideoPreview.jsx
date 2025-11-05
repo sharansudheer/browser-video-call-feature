@@ -13,10 +13,12 @@ export default function VideoPreview({ stream }) {
     <div
       style={{
         width: "100%",
+        maxWidth: "500px",
+        aspectRatio: "16 / 9",
         background: "#000",
         borderRadius: "10px",
         overflow: "hidden",
-        minHeight: "260px",
+        position: "relative",
       }}
     >
       {stream ? (
@@ -24,14 +26,23 @@ export default function VideoPreview({ stream }) {
           ref={videoRef}
           autoPlay
           playsInline
-          style={{ width: "100%", borderRadius: "10px" }}
+          muted
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            borderRadius: "10px",
+          }}
         />
       ) : (
         <div
           style={{
             color: "#888",
             textAlign: "center",
-            padding: "4rem 1rem",
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
           }}
         >
           No video feed active

@@ -7,8 +7,9 @@ export default function AudioTest({ outputDeviceId }) {
   const audioRef = useRef(null);
   const analyserRef = useRef(null);
   const rafIdRef = useRef(null);
+  const streamRef = useRef(null); 
 
-  // 🔊 Get mic permission & analyze audio level
+
   useEffect(() => {
     async function initAudio() {
       try {
@@ -44,7 +45,6 @@ export default function AudioTest({ outputDeviceId }) {
     };
   }, []);
 
-  // 🔈 Play a test sound through selected speaker
   const playTestSound = () => {
     const audio = new Audio("/test-tone.mp3"); // add a small tone file or use oscillator below
     if (outputDeviceId && audio.setSinkId) {
@@ -55,7 +55,7 @@ export default function AudioTest({ outputDeviceId }) {
 
   return (
     <div className="audio-test">
-      <h2>🎙️ Microphone Test</h2>
+      <h2>Microphone Test</h2>
       {!permissionGranted && !error && <p>Waiting for mic permission...</p>}
       {error && <p style={{ color: "red" }}>Error: {error}</p>}
 
@@ -93,7 +93,6 @@ export default function AudioTest({ outputDeviceId }) {
               cursor: "pointer",
             }}
           >
-            🔈 Play Test Sound
           </button>
         </>
       )}

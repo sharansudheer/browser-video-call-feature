@@ -12,8 +12,6 @@ export default function MediaTestPage() {
     stream,
     isVideoActive,
     isAudioActive,
-    requestCameraAccess,
-    requestMicAccess,
     startCall,
     stopVideo,
     stopAudio,
@@ -47,45 +45,21 @@ export default function MediaTestPage() {
         }}
       >
         {/* Left Column — Video */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <h2 style={{ marginBottom: "1rem" }}>🎥 Live Preview</h2>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <h2 style={{ marginBottom: "1rem" }}>Live Preview</h2>
           <VideoPreview stream={stream} />
         </div>
 
         {/* Right Column — Controls */}
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           <h1 style={{ textAlign: "center", marginBottom: "0.5rem" }}>Media Test Page</h1>
-
-          <div style={{ display: "flex", gap: "0.5rem" }}>
-            <button
-              onClick={requestCameraAccess}
-              style={{
-                background: "#6ee7b7",
-                color: "#064e3b",
-                border: "none",
-                padding: "0.5rem 1rem",
-                borderRadius: "8px",
-                cursor: "pointer",
-                flex: 1,
-              }}
-            >
-              Grant Camera Access
-            </button>
-            <button
-              onClick={requestMicAccess}
-              style={{
-                background: "#93c5fd",
-                color: "#1e3a8a",
-                border: "none",
-                padding: "0.5rem 1rem",
-                borderRadius: "8px",
-                cursor: "pointer",
-                flex: 1,
-              }}
-            >
-              Grant Mic Access
-            </button>
-          </div>
 
           <DeviceSelector
             label="Camera"
