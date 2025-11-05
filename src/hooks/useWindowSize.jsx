@@ -7,10 +7,16 @@ export default function useWindowSize() {
   });
 
   useEffect(() => {
-    const handleResize = () => setSize({ width: window.innerWidth, height: window.innerHeight });
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  const handleResize = () => {
+    clearTimeout(window.__resizeTimer);
+    window.__resizeTimer = setTimeout(() => {
+      setSize({ width: window.innerWidth, height: window.innerHeight });
+    }, 100);
+  };
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
+
 
   return size;
 }
