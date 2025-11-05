@@ -22,7 +22,7 @@ export default function MediaTestPage() {
 
   return (
     <div className="p-4">
-      <h1>🎥 Media Test Page</h1>
+      <h1>Media Test Page</h1>
       <DeviceSelector devices={devices} onSelect={handleSelect} />
       <VideoPreview stream={stream} />
       <AudioTest outputId={selected.speaker} />
