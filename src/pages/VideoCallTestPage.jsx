@@ -1,3 +1,5 @@
+// MediaTestPage.jsx (Compact Version)
+
 import useMediaDevices from "../hooks/useMediaDevices";
 import useWindowSize from "../hooks/useWindowSize";
 import DeviceSelector from "../components/DeviceSelector";
@@ -18,48 +20,53 @@ export default function MediaTestPage() {
   } = useMediaDevices();
 
   const { width } = useWindowSize();
-  const isNarrow = width < 900;
+  // New breakpoint: Switch to single column below 700px
+  const isNarrow = width < 700; 
+  // Very narrow fixed column for controls
+  const CONTROL_COLUMN_WIDTH = "280px"; 
 
   return (
     <div
       style={{
         display: "flex",
         justifyContent: "center",
-        alignItems: "center",
-        height: "100vh",
-        backgroundColor: "#f9fafb",
-        padding: "1rem",
+        minHeight: "100vh",
+        padding: "1rem", // Minimal outer padding
       }}
     >
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: isNarrow ? "1fr" : "1fr 1fr",
-          gap: "2rem",
+          // Grid definition: 1fr for video + fixed width for controls
+          gridTemplateColumns: isNarrow ? "1fr" : `1fr ${CONTROL_COLUMN_WIDTH}`,
+          gap: isNarrow ? "1rem" : "1.5rem", // Tighter gap between columns
           background: "white",
-          padding: "2rem",
-          borderRadius: "1rem",
-          boxShadow: "0 6px 16px rgba(0,0,0,0.1)",
+          padding: "1.5rem", // Tighter internal padding
+          borderRadius: "8px",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
           width: "100%",
-          maxWidth: "1200px",
+          // KEY CHANGE: Reduced maximum width for a compact, controlled size
+          maxWidth: "650px", 
+          alignItems: "start",
         }}
       >
-        {/* Left Column — Video */}
+        {/* Left Column — Video Preview */}
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            justifyContent: "center",
           }}
         >
-          <h2 style={{ marginBottom: "1rem" }}>Live Preview</h2>
+          <h2 style={{ marginBottom: "1rem", fontSize: "1.25rem", color: "#333" }}>Live Preview</h2>
           <VideoPreview stream={stream} />
         </div>
 
         {/* Right Column — Controls */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-          <h1 style={{ textAlign: "center", marginBottom: "0.5rem" }}>Media Test Page</h1>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}> 
+          <h1 style={{ textAlign: "center", marginBottom: "0.5rem", fontSize: "1.25rem", color: "#1f2937" }}>
+            Media Setup
+          </h1>
 
           <DeviceSelector
             label="Camera"
@@ -93,53 +100,28 @@ export default function MediaTestPage() {
           >
             <button
               onClick={startCall}
-              style={{
-                background: "#22c55e",
-                color: "white",
-                border: "none",
-                padding: "0.75rem 1.5rem",
-                borderRadius: "8px",
-                cursor: "pointer",
-                flex: 1,
-              }}
+              style={{ background: "#10b981", color: "white", border: "none", padding: "0.6rem 0.8rem", borderRadius: "6px", cursor: "pointer", flex: 1, fontWeight: "bold", transition: "background 0.3s", fontSize: "0.9rem" }}
             >
               Start Call
             </button>
-
             <button
               onClick={stopVideo}
-              style={{
-                background: "#f87171",
-                color: "white",
-                border: "none",
-                padding: "0.75rem 1.5rem",
-                borderRadius: "8px",
-                cursor: "pointer",
-                flex: 1,
-              }}
               disabled={!isVideoActive}
+              style={{ background: "#ef4444", color: "white", border: "none", padding: "0.6rem 0.8rem", borderRadius: "6px", cursor: "pointer", flex: 1, transition: "background 0.3s", fontSize: "0.9rem" }}
             >
               Stop Video
             </button>
-
             <button
               onClick={stopAudio}
-              style={{
-                background: "#60a5fa",
-                color: "white",
-                border: "none",
-                padding: "0.75rem 1.5rem",
-                borderRadius: "8px",
-                cursor: "pointer",
-                flex: 1,
-              }}
               disabled={!isAudioActive}
+              style={{ background: "#3b82f6", color: "white", border: "none", padding: "0.6rem 0.8rem", borderRadius: "6px", cursor: "pointer", flex: 1, transition: "background 0.3s", fontSize: "0.9rem" }}
             >
               Stop Audio
             </button>
           </div>
 
-          <div style={{ marginTop: "1.5rem" }}>
+          <div style={{ marginTop: "1rem" }}>
+            <h3 style={{ marginBottom: "0.4rem", color: "#333", fontSize: "1rem" }}>Audio Test</h3>
             <AudioTest outputId={selected.speaker} />
           </div>
         </div>
