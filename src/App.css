@@ -1,14 +1,13 @@
+/* GLOBAL CSS FILE */
+html, body, #root { 
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 body {
-  background: #121212;
-  color: #fff;
-  font-family: sans-serif;
-}
-
-h1 {
-  color: #00bfff;
-  margin-bottom: 1rem;
-}
-
-div {
-  padding: 1rem;
+  /* Set your intended background color here */
+  background-color: #f0f2f5; 
+  /* This ensures the background covers the viewport even if content is short */
+  background-attachment: fixed;
 }

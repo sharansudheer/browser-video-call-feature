@@ -88,29 +88,15 @@ export default function useMediaDevices() {
   // 🔹 Stop camera fully
   const stopVideo = () => {
   if (stream) {
-    // Stop and remove all video tracks
     stream.getVideoTracks().forEach(track => {
       track.stop();
       stream.removeTrack(track);
     });
-
-    // If no audio tracks remain, clear the entire stream
-    const remainingTracks = stream.getTracks();
-    if (remainingTracks.length === 0) {
-      setStream(null);
-    } else {
-      setStream(new MediaStream(remainingTracks));
-    }
+    setStream(prev => {
+      const newStream = new MediaStream(prev?.getAudioTracks() || []);
+      return newStream.getTracks().length ? newStream : null;
+    });
   }
-
-  // Mark video as inactive
-  setIsVideoActive(false);
-
-  // Also clear the video element manually (extra safety)
-  const videos = document.querySelectorAll("video");
-  videos.forEach(v => {
-    v.srcObject = null;
-  });
   setIsVideoActive(false);
 };
 
